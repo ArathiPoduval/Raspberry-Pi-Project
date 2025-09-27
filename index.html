@@ -331,57 +331,133 @@ sudo apt install python3-picamera2 python3-opencv -y</code></pre>
 
 
         <!-- ============================================== -->
-        <!-- PAGE 3: PDF DOCUMENTATION -->
+        <!-- PAGE 3: PDF DOCUMENTATION (Expanded Learning from Zero) -->
         <!-- ============================================== -->
         <div id="page-pdf" class="page-content hidden">
-            <h2 class="section-title">RAW DOCUMENTATION LOGS</h2>
-            <p class="text-center text-gray-400 mb-8 max-w-4xl mx-auto mono">SOURCE DOCUMENTATION FOR BASE SYSTEM INTEGRATION, ORGANIZED BY DEPLOYMENT DAY.</p>
+            <h2 class="section-title">RASPBERRY PI LEARNING LOG :: FROM ZERO TO ACCESS CONTROL</h2>
+            <p class="text-center text-gray-400 mb-8 max-w-4xl mx-auto mono">GUIDANCE LOGS FOR BASIC INTERFACING AND CORE PROJECT INTEGRATION. ALL CODE USES THE RPi.GPIO LIBRARY (UNLESS NOTED).</p>
 
             <div class="grid md:grid-cols-2 gap-8">
+                
+                <!-- OS/VNC Setup -->
                 <div class="card border-2 border-[#00FF00]/50">
-                    <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// DAY 1 PROTOCOL</h3>
-                    <p class="font-semibold mb-2 text-white mono">OBJECTIVE: OS INSTALLATION AND REALVNC SECURE ACCESS.</p>
-                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: OS & IMAGER ::</h4>
+                    <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// PHASE 01: OS & REMOTE ACCESS</h3>
+                    <p class="font-semibold mb-2 text-white mono">TARGET: ESTABLISH REMOTE INTERFACING VIA REALVNC.</p>
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: OS INSTALL & VNC ENABLE ::</h4>
                     <ul class="list-disc list-inside ml-4 text-gray-400 mono">
-                        <li>DOWNLOAD RASPBERRY PI IMAGER.</li>
-                        <li>CONFIGURE USER, PASS, & WIFI DURING WRITE.</li>
+                        <li>USE IMAGER: SET UP USER, PASS, WIFI.</li>
+                        <li>ENABLE VNC SERVER IN RASPBERRY PI CONFIGURATION $\rightarrow$ INTERFACES.</li>
+                        <li>CONNECT VIA **REALVNC VIEWER**.</li>
                     </ul>
-                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: VNC ACCESS ::</h4>
-                    <p class="text-gray-400 mono">ENABLE VNC SERVER VIA RASPBERRY PI CONFIGURATION. USE REALVNC VIEWER TO CONNECT REMOTELY.</p>
+                    <div class="code-block my-4">
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                        <pre><code>sudo raspi-config // ALTERNATE VNC ENABLE</code></pre>
+                    </div>
                 </div>
 
+                <!-- Basic I/O (LED, Touch) -->
                 <div class="card border-2 border-[#00FF00]/50">
-                    <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// DAY 2 & 3 PROTOCOL</h3>
-                    <p class="font-semibold mb-2 text-white mono">OBJECTIVE: SENSOR I/O (PIR) AND ACTUATOR CONTROL (SERVO/STEPPER).</p>
-                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: PIR SENSOR WIRING ::</h4>
+                    <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// PHASE 02: BASIC INTERFACING (LED, TOUCH)</h3>
+                    <p class="font-semibold mb-2 text-white mono">TARGET: DIGITAL OUTPUT (LED) AND DIGITAL INPUT (TOUCH/BUTTON).</p>
+                    
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: OUTPUT: LED BLINK (GPIO 23) ::</h4>
                     <ul class="list-disc list-inside ml-4 text-gray-400 mono">
-                        <li>VCC $\rightarrow$ **5V**</li>
-                        <li>GND $\rightarrow$ **GND**</li>
-                        <li>SIGNAL $\rightarrow$ **GPIO 17 (BCM)**</li>
+                        <li>LED CATHODE $\rightarrow$ GND (THROUGH RESISTOR).</li>
+                        <li>LED ANODE $\rightarrow$ **GPIO 23**.</li>
                     </ul>
-                    <hr class="my-4 border-gray-700">
-                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: SERVO CONTROL (PWM) ::</h4>
+                    <div class="code-block my-2">
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                        <pre><code>import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(23, GPIO.OUT)
+for _ in range(5):
+    GPIO.output(23, GPIO.HIGH)
+    time.sleep(0.5)
+    GPIO.output(23, GPIO.LOW)
+    time.sleep(0.5)
+GPIO.cleanup()</code></pre>
+                    </div>
+
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: INPUT: TOUCH/BUTTON (GPIO 24) ::</h4>
                     <ul class="list-disc list-inside ml-4 text-gray-400 mono">
-                        <li>PWM REQUIRED.</li>
-                        <li>SIGNAL $\rightarrow$ **GPIO 18**.</li>
+                        <li>TOUCH SIGNAL $\rightarrow$ **GPIO 24** (INPUT).</li>
+                        <li>PULL-UP RESISTOR RECOMMENDED.</li>
                     </ul>
-                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: STEPPER CONTROL ::</h4>
-                    <ul class="list-disc list-inside ml-4 text-gray-400 mono">
-                        <li>REQUIRES **ULN2003 DRIVER BOARD**.</li>
-                        <li>DRIVER IN1-IN4 $\rightarrow$ **4 GPIO PINS** (E.G., 5, 6, 13, 19).</li>
-                    </ul>
+                    <div class="code-block my-2">
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                        <pre><code>import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) // PUD_DOWN for button to 5V
+while True:
+    if GPIO.input(24) == GPIO.HIGH:
+        print("TOUCH DETECTED")
+    time.sleep(0.1)</code></pre>
+                    </div>
                 </div>
             </div>
 
-            <div class="card mt-8 max-w-4xl mx-auto border-2 border-[#00FF00]/50">
-                <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// DAY 4 PROTOCOL (OPENCV INJECTION)</h3>
-                <p class="font-semibold mb-2 text-white mono">OBJECTIVE: INTEGRATE COMPUTER VISION LIBRARY FOR CORE FUNCTIONALITY.</p>
-                <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: INSTALLATION LOG ::</h4>
-                <div class="code-block my-2">
-                    <pre><code>sudo apt update; sudo apt upgrade -y
-sudo apt install python3-opencv -y</code></pre>
+            <div class="grid md:grid-cols-2 gap-8 mt-8">
+                <!-- Advanced Actuators (Stepper) -->
+                <div class="card border-2 border-[#00FF00]/50">
+                    <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// PHASE 03: STEPPER MOTOR CONTROL</h3>
+                    <p class="font-semibold mb-2 text-white mono">TARGET: ROTATIONAL CONTROL VIA ULN2003 DRIVER.</p>
+                    
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: WIRING (28BYJ-48 & ULN2003) ::</h4>
+                    <ul class="list-disc list-inside ml-4 text-gray-400 mono">
+                        <li>ULN IN1-IN4 $\rightarrow$ **GPIO 5, 6, 13, 19**.</li>
+                        <li>ULN VCC/GND $\rightarrow$ **EXTERNAL 5V** & **COMMON GND**.</li>
+                    </ul>
+                    <div class="code-block my-2">
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                        <pre><code>import RPi.GPIO as GPIO
+import time
+
+control_pins = [5, 6, 13, 19] // IN1-IN4
+
+half_step_seq = [
+    [1,0,0,0], [1,1,0,0], [0,1,0,0], [0,1,1,0],
+    [0,0,1,0], [0,0,1,1], [0,0,0,1], [1,0,0,1]
+]
+
+GPIO.setmode(GPIO.BCM)
+for pin in control_pins:
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(pin, 0)
+
+// Rotate one full circle (512 steps for 2048 pulses per revolution)
+for step in range(512):
+    for halfstep in range(8):
+        for pin in range(4):
+            GPIO.output(control_pins[pin], half_step_seq[halfstep][pin])
+        time.sleep(0.001)
+
+GPIO.cleanup()</code></pre>
+                    </div>
                 </div>
-                <p class="text-sm text-gray-500 mt-4 mono">AUXILIARY CODE SCRIPTS ARE AVAILABLE IN THE /AUX_CODE TAB.</p>
+
+                <!-- Final Project Integration -->
+                <div class="card border-2 border-[#00FF00]/50">
+                    <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// PHASE 04: FINAL SYSTEM INTEGRATION</h3>
+                    <p class="font-semibold mb-2 text-white mono">TARGET: FACE RECOGNITION (OpenCV/LBPH) & SERVO ACTUATION.</p>
+                    
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: CORE COMPONENTS & LOGIC ::</h4>
+                    <ul class="list-disc list-inside ml-4 text-gray-400 mono">
+                        <li>**MODULES:** OpenCV, Picamera2, RPi.GPIO.</li>
+                        <li>**MODEL:** LBPH (Local Binary Patterns Histogram) $\rightarrow$ Fast, Low-Resource.</li>
+                        <li>**TRIGGER:** Servo (GPIO 18) $\rightarrow$ UNLOCKS on MATCH (Confidence $< 60$).</li>
+                    </ul>
+                    <div class="code-block my-2">
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                        <pre><code>// See CORE_PROJECT tab for full 3-file workflow:
+// 1. 01_dataset_creator.py
+// 2. 02_trainer.py
+// 3. 03_face_recognizer.py (Main Loop)
+// This entire final system relies solely on Open CV functions.</code></pre>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-4 mono">NOTE: THE COMPLETE AND FULLY COMMENTED 3-FILE WORKFLOW IS AVAILABLE UNDER THE **/CORE_PROJECT** TAB.</p>
+                </div>
             </div>
         </div>
         
