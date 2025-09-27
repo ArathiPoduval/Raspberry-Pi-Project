@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPi Project Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Technical Dark (Slate 800 & Teal 500) -->
+    <!-- Application Structure Plan: Retains the FOUR-page SPA structure (Home, Project, PDF, Code). The Project page now uses a two-column layout: an interactive sidebar for the Workflow and a main content area for details, improving information hierarchy and reducing vertical scrolling. -->
+    <!-- Visualization & Content Choices: Workflow steps moved to an interactive vertical sidebar. General content uses dark cards on a light background for high contrast. CONFIRMATION: NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* Slate-100 Light Background */
+        }
+        .section-title {
+            @apply text-3xl font-bold text-slate-800 mb-8 text-center;
+        }
+        .card {
+            @apply bg-white p-6 rounded-2xl shadow-xl transition-all duration-300 border border-slate-200;
+        }
+        .code-block {
+            @apply bg-slate-800 text-white p-4 rounded-lg font-mono text-sm relative overflow-x-auto;
+        }
+        .copy-btn {
+            @apply absolute top-2 right-2 bg-slate-700 hover:bg-teal-600 text-white text-xs px-3 py-1 rounded;
+        }
+        .nav-link {
+            @apply px-4 py-2 text-slate-300 hover:text-teal-400 hover:bg-slate-700 rounded-md transition-colors;
+        }
+        /* Workflow Sidebar Styles */
+        .workflow-step {
+            @apply flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 border-l-4 border-transparent text-slate-700 hover:bg-slate-50;
+        }
+        .workflow-step.active {
+            @apply bg-teal-50 border-teal-500 font-semibold text-teal-800;
+        }
+        .workflow-details-content {
+            @apply p-8 bg-white rounded-2xl shadow-xl border border-slate-200;
+        }
+        .page-tab {
+            @apply px-6 py-3 font-semibold text-lg border-b-2 border-transparent text-slate-600 hover:text-teal-600 hover:border-teal-300 transition-colors cursor-pointer;
+        }
+        .page-tab.active {
+            @apply text-teal-600 border-teal-600;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px; /* Increased max width for charts */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <header class="bg-slate-800 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-xl font-bold text-white pt-4 pb-2">RPi Project Navigator</h1>
+            <nav class="flex space-x-2 border-b border-slate-700">
+                <div id="nav-home" class="page-tab" data-page="page-home">Home</div>
+                <div id="nav-face-rec" class="page-tab" data-page="page-face-rec">Face Recognition Project</div>
+                <div id="nav-pdf" class="page-tab" data-page="page-pdf">PDF Documentation</div>
+                <div id="nav-code" class="page-tab" data-page="page-code">Auxiliary Code Examples</div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- ============================================== -->
+        <!-- PAGE 1: HOME PAGE -->
+        <!-- ============================================== -->
+        <div id="page-home" class="page-content hidden">
+            <div class="text-center py-16 bg-white rounded-3xl shadow-2xl mb-16 border border-slate-200">
+                <h2 class="text-5xl md:text-6xl font-extrabold text-slate-900 mb-4">RPi Project Hub</h2>
+                <p class="text-xl text-slate-600 max-w-4xl mx-auto px-4">
+                    The central guide for your core **Face Recognition System** and related hardware projects. Select a tile below or use the navigation bar to start exploring.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div class="card p-8 hover:ring-4 ring-teal-500/50 cursor-pointer" onclick="showPage('page-face-rec')">
+                    <div class="text-5xl mb-4">🤖</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Face Recognition System</h3>
+                    <p class="text-slate-600">Explore the interactive workflow, setup, and code for the real-time LBPH face detection and servo control project.</p>
+                </div>
+                <div class="card p-8 hover:ring-4 ring-teal-500/50 cursor-pointer" onclick="showPage('page-pdf')">
+                    <div class="text-5xl mb-4">📄</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Setup Documentation</h3>
+                    <p class="text-slate-600">Review the official project plan, including OS installation, VNC setup, and motor control principles, organized by project day.</p>
+                </div>
+                <div class="card p-8 hover:ring-4 ring-teal-500/50 cursor-pointer" onclick="showPage('page-code')">
+                    <div class="text-5xl mb-4">💻</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Auxiliary Code</h3>
+                    <p class="text-slate-600">Access ready-to-use Python scripts for general RPi tasks like PIR sensor input and alternative servo/OpenCV testing.</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ============================================== -->
+        <!-- PAGE 2: FACE RECOGNITION PROJECT (Interactive Sidebar Layout) -->
+        <!-- ============================================== -->
+        <div id="page-face-rec" class="page-content hidden">
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-10 text-center">Face Recognition Servo Control System</h2>
+            
+            <div class="grid lg:grid-cols-4 gap-8">
+                
+                <!-- Sidebar: Interactive Workflow -->
+                <div class="lg:col-span-1">
+                    <div class="card p-4 sticky top-24">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Project Workflow Steps</h3>
+                        <nav class="space-y-2" id="workflow-sidebar">
+                            <div id="step-1" class="workflow-step" data-target="details-1">
+                                <div class="text-xl mr-3">📸</div>
+                                <div>
+                                    <p class="font-semibold">1. Dataset Creation</p>
+                                    <p class="text-xs text-slate-500 font-mono">01_dataset_creator.py</p>
+                                </div>
+                            </div>
+                            <div id="step-2" class="workflow-step" data-target="details-2">
+                                <div class="text-xl mr-3">🧪</div>
+                                <div>
+                                    <p class="font-semibold">2. Model Training</p>
+                                    <p class="text-xs text-slate-500 font-mono">02_trainer.py</p>
+                                </div>
+                            </div>
+                            <div id="step-3" class="workflow-step" data-target="details-3">
+                                <div class="text-xl mr-3">🤖</div>
+                                <div>
+                                    <p class="font-semibold">3. Real-Time Control</p>
+                                    <p class="text-xs text-slate-500 font-mono">03_face_recognizer.py</p>
+                                </div>
+                            </div>
+                        </nav>
+                        <hr class="my-4 border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Project Metrics</h3>
+                        <div class="chart-container mt-4">
+                            <canvas id="workflowChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="lg:col-span-3 space-y-8">
+                    <div id="workflow-details-container">
+                        <!-- Workflow Step Details -->
+                        <div id="details-1" class="workflow-details-content hidden">
+                            <h3 class="text-2xl font-bold mb-3 text-teal-700">Stage 1: Dataset Creation (`01_dataset_creator.py`)</h3>
+                            <p class="mb-4 text-slate-600"><strong>Purpose:</strong> To capture 30 grayscale images of the user's face to create the training data. This data is the foundation for our recognition model.</p>
+                            <h4 class="font-semibold mb-2 text-slate-800">Key Logic:</h4>
+                            <ul class="list-disc list-inside mb-4 space-y-1 text-slate-600">
+                                <li>Initializes `Picamera2` for the camera feed and loads a Haar Cascade classifier for face detection.</li>
+                                <li>Saves cropped face images to the `dataset/1/` folder.</li>
+                            </ul>
+                            <div class="code-block">
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                <pre><code># Run this first to collect images (look at the camera when running)
+python3 01_dataset_creator.py</code></pre>
+                            </div>
+                        </div>
+
+                        <div id="details-2" class="workflow-details-content hidden">
+                            <h3 class="text-2xl font-bold mb-3 text-teal-700">Stage 2: Model Training (`02_trainer.py`)</h3>
+                            <p class="mb-4 text-slate-600"><strong>Purpose:</strong> To train the LBPH recognizer using the collected images and serialize the model for real-time use.</p>
+                            <h4 class="font-semibold mb-2 text-slate-800">Key Logic:</h4>
+                            <ul class="list-disc list-inside mb-4 space-y-1 text-slate-600">
+                                <li>Reads all images from the `dataset` folder and extracts the user ID.</li>
+                                <li>Trains the LBPH recognizer using OpenCV's `cv2.face.LBPHFaceRecognizer_create()`.</li>
+                                <li>Saves the trained model to the file `trainer.yml`.</li>
+                            </ul>
+                            <div class="code-block">
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                <pre><code># Run this second, after collecting the dataset
+python3 02_trainer.py</code></pre>
+                            </div>
+                        </div>
+
+                        <div id="details-3" class="workflow-details-content hidden">
+                            <h3 class="text-2xl font-bold mb-3 text-teal-700">Stage 3: Real-Time Recognition & Control (`03_face_recognizer.py`)</h3>
+                            <p class="mb-4 text-slate-600"><strong>Purpose:</strong> The main operational script. It loads the trained model, runs real-time recognition, and controls the servo based on the results.</p>
+                            <h4 class="font-semibold mb-2 text-slate-800">Key Logic & Servo Control:</h4>
+                            <ul class="list-disc list-inside mb-4 space-y-1 text-slate-600">
+                                <li>Initializes RPi.GPIO and starts the PWM signal for the servo at the **Locked** position (2.5% duty cycle).</li>
+                                <li>Uses `recognizer.predict()` for real-time face matching.</li>
+                                <li>**Match Found:** Servo moves to the **Unlocked** position (12.5% duty cycle).</li>
+                                <li>**Match Lost/Unknown:** Servo moves back to the **Locked** position.</li>
+                            </ul>
+                            <div class="code-block">
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                <pre><code># Run this last to start the live system
+python3 03_face_recognizer.py</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Setup Section -->
+                    <section id="setup">
+                        <h2 class="section-title !text-left">Setup & Requirements</h2>
+                        <div class="card">
+                            <div class="flex justify-start space-x-4 mb-6 overflow-x-auto border-b pb-2">
+                                <button id="tab-hw-btn" class="tab-btn active font-semibold whitespace-nowrap !text-teal-600 !border-teal-600">Hardware</button>
+                                <button id="tab-sw-btn" class="tab-btn font-semibold whitespace-nowrap">Software & Installation</button>
+                                <button id="tab-remote-btn" class="tab-btn font-semibold whitespace-nowrap">Remote Access (VNC)</button>
+                            </div>
+                            
+                            <div id="tab-hw-content">
+                                <h3 class="font-bold text-lg mb-4 text-slate-800">Core Hardware Components</h3>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-center">
+                                    <div class="p-4 bg-slate-50 rounded-lg border">
+                                        <div class="text-3xl mb-2">🍓</div>
+                                        <p class="font-semibold">Raspberry Pi 4/3B+</p>
+                                        <p class="text-xs text-slate-500">Main processor</p>
+                                    </div>
+                                    <div class="p-4 bg-slate-50 rounded-lg border">
+                                        <div class="text-3xl mb-2">📷</div>
+                                        <p class="font-semibold">Pi Camera Module</p>
+                                        <p class="text-xs text-slate-500">Video capture</p>
+                                    </div>
+                                    <div class="p-4 bg-slate-50 rounded-lg border">
+                                        <div class="text-3xl mb-2">⚙️</div>
+                                        <p class="font-semibold">Servo Motor (SG90)</p>
+                                        <p class="text-xs text-slate-500">Lock mechanism</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="tab-sw-content" class="hidden">
+                                <h3 class="font-bold text-lg mb-4 text-slate-800">Software Installation (OpenCV, GPIO, Picamera2)</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <p class="font-semibold mb-1">1. Update and install core dependencies:</p>
+                                        <div class="code-block">
+                                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                            <pre><code>sudo apt update
+sudo apt install python3-picamera2 python3-opencv -y</code></pre>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold mb-1">2. Install necessary Python libraries (RPi.GPIO for Servo):</p>
+                                        <div class="code-block">
+                                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                            <pre><code>pip install opencv-contrib-python numpy RPi.GPIO pillow</code></pre>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold mb-1">3. Download the Haar Cascade for face detection:</p>
+                                        <div class="code-block">
+                                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                            <pre><code>wget https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="tab-remote-content" class="hidden">
+                                <h3 class="font-bold text-lg mb-4 text-slate-800">Remote Access Setup (RealVNC)</h3>
+                                <p class="mb-4 text-slate-600">Enable remote desktop access, as documented in the PDF guide:</p>
+                                <ol class="list-decimal list-inside space-y-3 text-slate-600">
+                                    <li>**Install RPi OS with Imager:** Pre-configure your username, password, and Wi-Fi settings during OS setup.</li>
+                                    <li>**Enable VNC Server:** Go to **Menu > Preferences > Raspberry Pi Configuration**, select **Interfaces**, and set **VNC to Enabled**.</li>
+                                    <li>**Connect Remotely:** Use **RealVNC Viewer** on your host computer, enter the Pi's address, and log in.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Wiring Section -->
+                    <section id="wiring">
+                        <h2 class="section-title !text-left">Hardware Wiring Guide</h2>
+                        <p class="text-slate-600 mb-6">Correctly wiring the servo motor to the Raspberry Pi's GPIO header is crucial. We use **BCM GPIO 18** for PWM control.</p>
+                        <div class="card">
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-4 p-3 bg-teal-50 rounded-lg border-l-4 border-teal-500">
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-yellow-400 text-yellow-800 font-bold text-sm">Signal</div>
+                                    <div class="font-mono text-sm">&rarr;</div>
+                                    <div class="flex-grow">
+                                        <p class="font-bold text-slate-800">GPIO 18 <span class="font-normal text-slate-500">(Physical Pin 12)</span></p>
+                                        <p class="text-xs text-slate-500">PWM Signal for Angle Control</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4 p-3 bg-slate-50 rounded-lg border-l-4 border-red-500">
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-red-500 text-white font-bold text-sm">VCC</div>
+                                    <div class="font-mono text-sm">&rarr;</div>
+                                    <div class="flex-grow">
+                                        <p class="font-bold text-slate-800">5V Power <span class="font-normal text-slate-500">(Physical Pin 2 or 4)</span></p>
+                                        <p class="text-xs text-slate-500">Servo Power Supply</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4 p-3 bg-slate-50 rounded-lg border-l-4 border-gray-700">
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-700 text-white font-bold text-sm">GND</div>
+                                    <div class="font-mono text-sm">&rarr;</div>
+                                    <div class="flex-grow">
+                                        <p class="font-bold text-slate-800">Ground <span class="font-normal text-slate-500">(Any GND Pin)</span></p>
+                                        <p class="text-xs text-slate-500">Common Ground Connection</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ============================================== -->
+        <!-- PAGE 3: PDF DOCUMENTATION -->
+        <!-- ============================================== -->
+        <div id="page-pdf" class="page-content hidden">
+            <h2 class="section-title">PDF Documentation: General RPi Project Setup</h2>
+            <p class="text-center text-slate-600 mb-8 max-w-4xl mx-auto">This section contains the critical setup and configuration documentation sourced from your provided PDF file, organized by day for clarity.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4 text-teal-700">Day 1: RPi OS Installation and RealVNC Setup</h3>
+                    <p class="font-semibold mb-2 text-slate-800">Objective: Install the operating system and configure RealVNC for remote desktop access.</p>
+                    <h4 class="font-semibold mt-4 text-slate-800">1. Install Raspberry Pi OS using Imager:</h4>
+                    <ul class="list-disc list-inside ml-4 text-slate-600">
+                        <li>Download and install the Raspberry Pi Imager.</li>
+                        <li>Select **Raspberry Pi OS**, choose storage, and set up your **username, password, and Wi-Fi**.</li>
+                        <li>Click "Write" to complete the process.</li>
+                    </ul>
+                    <h4 class="font-semibold mt-4 text-slate-800">2. Enable RealVNC Server:</h4>
+                    <p class="text-slate-600">Go to **Menu > Preferences > Raspberry Pi Configuration**, select the **Interfaces** tab, and ensure **VNC is set to Enabled**.</p>
+                    <h4 class="font-semibold mt-4 text-slate-800">3. Connect Remotely:</h4>
+                    <p class="text-slate-600">Use **RealVNC Viewer** on your remote computer and enter your Raspberry Pi's address (`raspberrypi.local` or IP) to connect.</p>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4 text-teal-700">Day 2 & 3: Sensors and Motor Control</h3>
+                    <p class="font-semibold mb-2 text-slate-800">Day 2 Objective: Interface and write Python code to read input from a Passive Infrared (PIR) motion sensor.</p>
+                    <h4 class="font-semibold mt-4 text-slate-800">PIR Sensor Wiring:</h4>
+                    <ul class="list-disc list-inside ml-4 text-slate-600">
+                        <li>PIR VCC $\rightarrow$ Raspberry Pi **5V Pin**</li>
+                        <li>PIR GND $\rightarrow$ Raspberry Pi **GND Pin**</li>
+                        <li>PIR OUT (Signal) $\rightarrow$ **GPIO 17** (Physical Pin 11, BCM)</li>
+                    </ul>
+                    <hr class="my-4 border-slate-200">
+                    <p class="font-semibold mb-2 text-slate-800">Day 3 Objective: Control both a Servo Motor (using PWM) and a Stepper Motor (using a driver board).</p>
+                    <h4 class="font-semibold mt-4 text-slate-800">Servo Motor Control & Wiring:</h4>
+                    <ul class="list-disc list-inside ml-4 text-slate-600">
+                        <li>Servo motors use **PWM** (Pulse Width Modulation) to set the angle.</li>
+                        <li>Servo Power $\rightarrow$ **5V** (External Supply Recommended)</li>
+                        <li>Servo Ground $\rightarrow$ **Common GND**</li>
+                        <li>Servo Signal $\rightarrow$ **GPIO 18** (Physical Pin 12)</li>
+                    </ul>
+                    <h4 class="font-semibold mt-4 text-slate-800">Stepper Motor Control & Wiring:</h4>
+                    <ul class="list-disc list-inside ml-4 text-slate-600">
+                        <li>Stepper motors require an **ULN2003 Driver Board** to sequence the coils.</li>
+                        <li>Driver board VCC/GND $\rightarrow$ **External 5V Power** and **Common GND**.</li>
+                        <li>Driver board IN1-IN4 $\rightarrow$ **4 GPIO Output Pins** (e.g., GPIO 5, 6, 13, 19).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-8 max-w-4xl mx-auto">
+                <h3 class="text-xl font-bold mb-4 text-teal-700">Day 4: Introduction to OpenCV</h3>
+                <p class="font-semibold mb-2 text-slate-800">Objective: Install the OpenCV library and run a basic computer vision script to process an image or capture video.</p>
+                <h4 class="font-semibold mt-4 text-slate-800">1. Update System Packages:</h4>
+                <div class="code-block my-2">
+                    <pre><code>sudo apt update; sudo apt upgrade -y</code></pre>
+                </div>
+                <h4 class="font-semibold mt-4 text-slate-800">2. Install OpenCV:</h4>
+                <div class="code-block my-2">
+                    <pre><code>sudo apt install python3-opencv -y</code></pre>
+                </div>
+                <h4 class="font-semibold mt-4 text-slate-800">3. Test Installation:</h4>
+                <p class="text-slate-600">Open `python3` and run `import cv2` followed by `print(cv2.__version__)`.</p>
+                <p class="text-sm text-slate-500 mt-4">Note: The full Python code examples for these steps are available on the **Auxiliary Code Examples** page.</p>
+            </div>
+        </div>
+        
+        <!-- ============================================== -->
+        <!-- PAGE 4: AUXILIARY CODE EXAMPLES -->
+        <!-- ============================================== -->
+        <div id="page-code" class="page-content hidden">
+            <h2 class="section-title">Auxiliary Code Examples</h2>
+            <p class="text-center text-slate-600 mb-12 max-w-4xl mx-auto">These are the additional Python scripts referenced in your documentation for interfacing with other sensors and testing OpenCV.</p>
+            
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="p-4 bg-slate-100 rounded-xl shadow-md border">
+                    <h3 class="font-bold mb-1 text-slate-800">PIR Motion Sensor (Using RPi.GPIO)</h3>
+                    <p class="text-sm text-slate-500 mb-2">Detects movement and prints a message to the console.</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>import RPi.GPIO as GPIO
+import time
+PIR_PIN = 17
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(PIR_PIN, GPIO.IN)
+
+try:
+    while True:
+        if GPIO.input(PIR_PIN):
+            print("Motion Detected!")
+        else:
+            print("No Motion")
+        time.sleep(0.5)
+except KeyboardInterrupt:
+    GPIO.cleanup()</code></pre>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-100 rounded-xl shadow-md border">
+                    <h3 class="font-bold mb-1 text-slate-800">Servo Motor Control (Using gpiozero)</h3>
+                    <p class="text-sm text-slate-500 mb-2">Alternative servo control script that sweeps the motor between min and max angles.</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>from gpiozero import Servo
+from time import sleep
+
+servo = Servo(18) # Uses BCM 18
+
+try:
+    while True:
+        servo.min() # e.g., 0 degrees
+        sleep(1)
+        servo.max() # e.g., 180 degrees
+        sleep(1)
+except KeyboardInterrupt:
+    pass</code></pre>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-100 rounded-xl shadow-md border">
+                    <h3 class="font-bold mb-1 text-slate-800">Basic OpenCV Test (Image to Grayscale)</h3>
+                    <p class="text-sm text-slate-500 mb-2">Loads a file named `image.jpg`, converts it, and displays both windows.</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code>import cv2
+
+img = cv2.imread('image.jpg')
+
+if img is not None:
+    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    cv2.imshow('Original Image', img)
+    cv2.imshow('Grayscale Image', gray_img)
+    
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+else:
+    print("Error: Could not read image.jpg")</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>Interactive Project Report created from source documentation.</p>
+            <p class="text-sm text-slate-400 mt-1">System designed for Raspberry Pi using OpenCV and Python.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        // --- GLOBAL FUNCTIONS ---
+        // showPage must be global so it can be called by the onclick attributes in the HTML (like on the Home page cards).
+        function showPage(pageId) {
+            const pageContents = document.querySelectorAll('.page-content');
+            const pageTabs = document.querySelectorAll('.page-tab');
+
+            pageContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+
+            pageTabs.forEach(tab => {
+                if (tab.dataset.page === pageId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Reset Project page state when navigating to it
+            if (pageId === 'page-face-rec') {
+                // Ensure the first workflow step is active and visible when page-face-rec is shown
+                const step1 = document.getElementById('step-1');
+                const details1 = 'details-1';
+                // Use a slight timeout to ensure all DOM elements are visible before trying to activate
+                setTimeout(() => activateWorkflowStep(step1, details1), 10); 
+            }
+        }
+
+        // --- DOM CONTENT LOADED ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const workflowSteps = document.querySelectorAll('.workflow-step');
+            const workflowDetails = document.querySelectorAll('.workflow-details-content');
+            const pageTabs = document.querySelectorAll('.page-tab');
+            
+            // --- UI Elements for Project Page ---
+            const tabHwBtn = document.getElementById('tab-hw-btn');
+            const tabSwBtn = document.getElementById('tab-sw-btn');
+            const tabRemoteBtn = document.getElementById('tab-remote-btn');
+            const tabHwContent = document.getElementById('tab-hw-content');
+            const tabSwContent = document.getElementById('tab-sw-content');
+            const tabRemoteContent = document.getElementById('tab-remote-content');
+
+            // --- Navigation Event Listeners ---
+            pageTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    showPage(tab.dataset.page);
+                });
+            });
+
+            // --- Sub-Tab Logic (for Page 2: Face Recognition Project) ---
+            function activateSubTab(activeBtn, activeContent) {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', '!text-teal-600', '!border-teal-600'));
+                [tabHwContent, tabSwContent, tabRemoteContent].forEach(content => content.classList.add('hidden'));
+                
+                activeBtn.classList.add('active', '!text-teal-600', '!border-teal-600');
+                activeContent.classList.remove('hidden');
+            }
+
+            tabHwBtn.addEventListener('click', () => activateSubTab(tabHwBtn, tabHwContent));
+            tabSwBtn.addEventListener('click', () => activateSubTab(tabSwBtn, tabSwContent));
+            tabRemoteBtn.addEventListener('click', () => activateSubTab(tabRemoteBtn, tabRemoteContent));
+
+            // --- Workflow Detail Logic (for Page 2: Face Recognition Project) ---
+            function activateWorkflowStep(step, targetId) {
+                workflowDetails.forEach(detail => detail.classList.add('hidden'));
+                workflowSteps.forEach(s => s.classList.remove('active'));
+
+                document.getElementById(targetId).classList.remove('hidden');
+                step.classList.add('active');
+            }
+
+            workflowSteps.forEach(step => {
+                step.addEventListener('click', () => {
+                    const targetId = step.dataset.target;
+                    activateWorkflowStep(step, targetId);
+                });
+            });
+
+            // --- Chart Initialization ---
+            const ctx = document.getElementById('workflowChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['1. Dataset Creation (35%)', '2. Model Training (20%)', '3. Real-Time Recognition (45%)'],
+                    datasets: [{
+                        label: 'Project Phases',
+                        data: [35, 20, 45],
+                        backgroundColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(14, 165, 233)'
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14,
+                                    family: "'Inter', sans-serif"
+                                }
+                            }
+                        },
+                        tooltip: {
+                             callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ' ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label = label.replace(/\(\d+%\)/g, ''); 
+                                        label += context.parsed + '% of project effort';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            // Initial view setup
+            // This is handled by showPage('page-home') implicitly, 
+            // but we ensure initial tab states are correct.
+            document.getElementById('nav-home').classList.add('active');
+            activateSubTab(tabHwBtn, tabHwContent);
+            
+            // Set initial page after all setup is complete
+            showPage('page-home');
+        });
+
+        function copyCode(button) {
+            const pre = button.parentElement.querySelector('pre');
+            const text = pre.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                button.innerText = 'Copied!';
+                setTimeout(() => {
+                    button.innerText = 'Copy';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
