@@ -3,73 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPi Project Navigator</title>
+    <title>RPi Project Navigator // ACCESS CONTROL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Technical Dark (Slate 800 & Teal 500) -->
-    <!-- Application Structure Plan: Retains the FOUR-page SPA structure (Home, Project, PDF, Code). The Project page now uses a two-column layout: an interactive sidebar for the Workflow and a main content area for details, improving information hierarchy and reducing vertical scrolling. -->
-    <!-- Visualization & Content Choices: Workflow steps moved to an interactive vertical sidebar. General content uses dark cards on a light background for high contrast. CONFIRMATION: NO SVG/Mermaid used. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Brutalist Dark (Deep Slate/Black & Neon Cyan) -->
+    <!-- Application Structure Plan: Retains the FOUR-page SPA structure. UI is complex, dense, and uses dramatic dark themes and neon accents to achieve a "brutiful" aesthetic fitting the security project domain. -->
+    <!-- Visualization & Content Choices: Heavy use of monospace fonts, neon shadows, and aggressive borders. CONFIRMATION: NO SVG/Mermaid used. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
+        /* Base styles for the "Brutiful" aesthetic */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9; /* Slate-100 Light Background */
+            background-color: #0d0d0d; /* Deep Black/Dark Slate */
+            color: #d1d5db; /* Light gray text */
+            /* Optional: Add subtle noise texture for grit */
+            /* background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiPgogICAgICA8ZmlsdGVyIGlkPSJmMSI+CiAgICAgICAgICA8ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjY1IiBudW1PY3RhdmVzPSI0IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+CiAgICAgICAgICA8ZmVDb2xvck1hdHJpeCB0eXBlPSJzYXR1cmF0ZSIgdmFsdWVzPSIwIi8+CiAgICAgICAgICA8ZmVNb3JwaG9sb2d5IG9wZXJhdG9yPSJkaWxhdGUiIHJhZGl1c30iLjUiLz4KICAgICAgPC9maWx0ZXI+CiAgICAgIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNmMSkiIG9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+'); */
+        }
+        .mono {
+            font-family: 'Space Mono', monospace;
         }
         .section-title {
-            @apply text-3xl font-bold text-slate-800 mb-8 text-center;
+            @apply text-3xl font-extrabold text-[#00FFFF] mb-8 text-center uppercase mono; /* Neon Cyan */
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.6);
         }
         .card {
-            @apply bg-white p-6 rounded-2xl shadow-xl transition-all duration-300 border border-slate-200;
+            @apply bg-[#151d28] p-6 rounded-lg shadow-2xl transition-all duration-500 border border-[#00FFFF] border-opacity-30;
         }
         .code-block {
-            @apply bg-slate-800 text-white p-4 rounded-lg font-mono text-sm relative overflow-x-auto;
+            @apply bg-black text-[#00FF00] p-4 rounded-lg text-sm relative overflow-x-auto border border-[#00FF00] border-opacity-50 mono; /* Green Code Block */
         }
         .copy-btn {
-            @apply absolute top-2 right-2 bg-slate-700 hover:bg-teal-600 text-white text-xs px-3 py-1 rounded;
+            @apply absolute top-2 right-2 bg-[#00FFFF] hover:bg-[#00FF00] text-black font-bold text-xs px-3 py-1 rounded-sm transition-colors;
         }
-        .nav-link {
-            @apply px-4 py-2 text-slate-300 hover:text-teal-400 hover:bg-slate-700 rounded-md transition-colors;
-        }
-        /* Workflow Sidebar Styles */
-        .workflow-step {
-            @apply flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 border-l-4 border-transparent text-slate-700 hover:bg-slate-50;
-        }
-        .workflow-step.active {
-            @apply bg-teal-50 border-teal-500 font-semibold text-teal-800;
-        }
-        .workflow-details-content {
-            @apply p-8 bg-white rounded-2xl shadow-xl border border-slate-200;
-        }
+        
+        /* Navigation Styles */
         .page-tab {
-            @apply px-6 py-3 font-semibold text-lg border-b-2 border-transparent text-slate-600 hover:text-teal-600 hover:border-teal-300 transition-colors cursor-pointer;
+            @apply px-6 py-3 font-bold text-lg border-b-2 border-transparent text-gray-400 hover:text-[#00FFFF] hover:border-[#00FFFF] transition-colors duration-200 uppercase mono;
         }
         .page-tab.active {
-            @apply text-teal-600 border-teal-600;
+            @apply text-[#00FFFF] border-[#00FFFF] shadow-md shadow-[#00FFFF]/30;
         }
+
+        /* Workflow Sidebar Styles */
+        .workflow-step {
+            @apply flex items-center p-4 rounded-none cursor-pointer transition-all duration-200 border-l-4 border-transparent text-gray-300 hover:bg-[#00FFFF]/10;
+        }
+        .workflow-step.active {
+            @apply bg-[#00FFFF]/20 border-[#00FFFF] font-bold text-white shadow-lg shadow-[#00FFFF]/20;
+        }
+        .workflow-details-content {
+            @apply p-8 bg-[#1f2937] rounded-lg shadow-inner border border-[#00FF00]/30;
+        }
+
+        /* Brutal Card Styling for Home Page */
+        .home-card {
+            @apply bg-[#151d28] p-8 rounded-none shadow-none transition-all duration-300 border-4 border-gray-700 hover:border-[#00FFFF];
+            transform: skew(-1deg);
+        }
+        .home-card:hover {
+            transform: skew(-1deg) scale(1.03);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+        }
+
+        /* Chart Container adjustments for dark theme */
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 450px; /* Increased max width for charts */
+            max-width: 450px;
             margin-left: auto;
             margin-right: auto;
             height: 300px;
             max-height: 400px;
+            background: #000000;
+            padding: 5px;
+            border: 2px solid #00FFFF;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
     </style>
 </head>
-<body class="text-slate-700">
+<body class="text-gray-300">
 
-    <header class="bg-slate-800 sticky top-0 z-50 shadow-lg">
+    <header class="bg-black sticky top-0 z-50 shadow-lg border-b-4 border-[#00FF00]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-xl font-bold text-white pt-4 pb-2">RPi Project Navigator</h1>
-            <nav class="flex space-x-2 border-b border-slate-700">
-                <div id="nav-home" class="page-tab" data-page="page-home">Home</div>
-                <div id="nav-face-rec" class="page-tab" data-page="page-face-rec">Face Recognition Project</div>
-                <div id="nav-pdf" class="page-tab" data-page="page-pdf">PDF Documentation</div>
-                <div id="nav-code" class="page-tab" data-page="page-code">Auxiliary Code Examples</div>
+            <h1 class="text-xl font-black text-[#FF00FF] pt-4 pb-2 uppercase mono">:: RPi Security Nexus ::</h1>
+            <nav class="flex space-x-2">
+                <div id="nav-home" class="page-tab" data-page="page-home">/HUB_ACCESS</div>
+                <div id="nav-face-rec" class="page-tab" data-page="page-face-rec">/CORE_PROJECT</div>
+                <div id="nav-pdf" class="page-tab" data-page="page-pdf">/RAW_DOCS</div>
+                <div id="nav-code" class="page-tab" data-page="page-code">/AUX_CODE</div>
             </nav>
         </div>
     </header>
@@ -80,28 +104,28 @@
         <!-- PAGE 1: HOME PAGE -->
         <!-- ============================================== -->
         <div id="page-home" class="page-content hidden">
-            <div class="text-center py-16 bg-white rounded-3xl shadow-2xl mb-16 border border-slate-200">
-                <h2 class="text-5xl md:text-6xl font-extrabold text-slate-900 mb-4">RPi Project Hub</h2>
-                <p class="text-xl text-slate-600 max-w-4xl mx-auto px-4">
-                    The central guide for your core **Face Recognition System** and related hardware projects. Select a tile below or use the navigation bar to start exploring.
+            <div class="text-center py-16 bg-[#1f2937] rounded-none shadow-none mb-16 border-4 border-[#00FFFF] border-opacity-70">
+                <h2 class="text-6xl md:text-7xl font-black text-[#00FFFF] mb-4 uppercase mono">PROJECT BLACKBOX</h2>
+                <p class="text-xl text-gray-400 max-w-4xl mx-auto px-4 mono">
+                    ACCESS GRANTED. CENTRAL GUIDE FOR CORE **FACE RECOGNITION SYSTEM** AND AUXILIARY HARDWARE. EXPLORE THE PROJECT NEXUS BELOW.
                 </p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8 text-center">
-                <div class="card p-8 hover:ring-4 ring-teal-500/50 cursor-pointer" onclick="showPage('page-face-rec')">
-                    <div class="text-5xl mb-4">🤖</div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Face Recognition System</h3>
-                    <p class="text-slate-600">Explore the interactive workflow, setup, and code for the real-time LBPH face detection and servo control project.</p>
+                <div class="home-card p-8 cursor-pointer" onclick="showPage('page-face-rec')">
+                    <div class="text-5xl mb-4 text-[#00FF00]">::</div>
+                    <h3 class="text-xl font-black text-white mb-2 uppercase mono">CORE SYSTEM</h3>
+                    <p class="text-gray-400 mono">INTERACTIVE WORKFLOW & REAL-TIME CONTROL CODE. START HERE.</p>
                 </div>
-                <div class="card p-8 hover:ring-4 ring-teal-500/50 cursor-pointer" onclick="showPage('page-pdf')">
-                    <div class="text-5xl mb-4">📄</div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Setup Documentation</h3>
-                    <p class="text-slate-600">Review the official project plan, including OS installation, VNC setup, and motor control principles, organized by project day.</p>
+                <div class="home-card p-8 cursor-pointer" onclick="showPage('page-pdf')">
+                    <div class="text-5xl mb-4 text-[#FF00FF]">::</div>
+                    <h3 class="text-xl font-black text-white mb-2 uppercase mono">RAW DOCUMENTATION</h3>
+                    <p class="text-gray-400 mono">SETUP PROTOCOLS: OS, VNC, AND MOTOR PRINCIPLES. DAY-BY-DAY.</p>
                 </div>
-                <div class="card p-8 hover:ring-4 ring-teal-500/50 cursor-pointer" onclick="showPage('page-code')">
-                    <div class="text-5xl mb-4">💻</div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Auxiliary Code</h3>
-                    <p class="text-slate-600">Access ready-to-use Python scripts for general RPi tasks like PIR sensor input and alternative servo/OpenCV testing.</p>
+                <div class="home-card p-8 cursor-pointer" onclick="showPage('page-code')">
+                    <div class="text-5xl mb-4 text-[#00FFFF]">::</div>
+                    <h3 class="text-xl font-black text-white mb-2 uppercase mono">AUXILIARY CODE SCRIPTS</h3>
+                    <p class="text-gray-400 mono">PIR SENSOR, STEPPER, AND OPENCV TEST CODE ACCESS.</p>
                 </div>
             </div>
         </div>
@@ -111,39 +135,39 @@
         <!-- PAGE 2: FACE RECOGNITION PROJECT (Interactive Sidebar Layout) -->
         <!-- ============================================== -->
         <div id="page-face-rec" class="page-content hidden">
-            <h2 class="text-4xl font-extrabold text-slate-900 mb-10 text-center">Face Recognition Servo Control System</h2>
+            <h2 class="text-4xl font-black text-[#00FFFF] mb-10 text-center uppercase mono">// FACE RECOGNITION SYSTEM CONTROL MODULE</h2>
             
             <div class="grid lg:grid-cols-4 gap-8">
                 
                 <!-- Sidebar: Interactive Workflow -->
                 <div class="lg:col-span-1">
-                    <div class="card p-4 sticky top-24">
-                        <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Project Workflow Steps</h3>
+                    <div class="card p-4 sticky top-24 border-2 border-[#00FF00] shadow-xl shadow-[#00FF00]/20">
+                        <h3 class="text-lg font-black text-white mb-4 border-b border-[#00FF00] pb-2 uppercase mono">EXECUTION SEQUENCE</h3>
                         <nav class="space-y-2" id="workflow-sidebar">
                             <div id="step-1" class="workflow-step" data-target="details-1">
-                                <div class="text-xl mr-3">📸</div>
+                                <div class="text-xl mr-3 text-[#FF00FF] mono">01_</div>
                                 <div>
-                                    <p class="font-semibold">1. Dataset Creation</p>
-                                    <p class="text-xs text-slate-500 font-mono">01_dataset_creator.py</p>
+                                    <p class="font-bold uppercase mono">DATASET CAPTURE</p>
+                                    <p class="text-xs text-gray-500 mono">01_dataset_creator.py</p>
                                 </div>
                             </div>
                             <div id="step-2" class="workflow-step" data-target="details-2">
-                                <div class="text-xl mr-3">🧪</div>
+                                <div class="text-xl mr-3 text-[#FF00FF] mono">02_</div>
                                 <div>
-                                    <p class="font-semibold">2. Model Training</p>
-                                    <p class="text-xs text-slate-500 font-mono">02_trainer.py</p>
+                                    <p class="font-bold uppercase mono">MODEL TRAINING</p>
+                                    <p class="text-xs text-gray-500 mono">02_trainer.py</p>
                                 </div>
                             </div>
                             <div id="step-3" class="workflow-step" data-target="details-3">
-                                <div class="text-xl mr-3">🤖</div>
+                                <div class="text-xl mr-3 text-[#FF00FF] mono">03_</div>
                                 <div>
-                                    <p class="font-semibold">3. Real-Time Control</p>
-                                    <p class="text-xs text-slate-500 font-mono">03_face_recognizer.py</p>
+                                    <p class="font-bold uppercase mono">REAL-TIME EXEC</p>
+                                    <p class="text-xs text-gray-500 mono">03_face_recognizer.py</p>
                                 </div>
                             </div>
                         </nav>
-                        <hr class="my-4 border-slate-200">
-                        <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Project Metrics</h3>
+                        <hr class="my-4 border-[#00FF00] border-opacity-50">
+                        <h3 class="text-lg font-black text-white mb-4 border-b border-[#00FF00] pb-2 uppercase mono">RESOURCE ALLOCATION</h3>
                         <div class="chart-container mt-4">
                             <canvas id="workflowChart"></canvas>
                         </div>
@@ -155,107 +179,101 @@
                     <div id="workflow-details-container">
                         <!-- Workflow Step Details -->
                         <div id="details-1" class="workflow-details-content hidden">
-                            <h3 class="text-2xl font-bold mb-3 text-teal-700">Stage 1: Dataset Creation (`01_dataset_creator.py`)</h3>
-                            <p class="mb-4 text-slate-600"><strong>Purpose:</strong> To capture 30 grayscale images of the user's face to create the training data. This data is the foundation for our recognition model.</p>
-                            <h4 class="font-semibold mb-2 text-slate-800">Key Logic:</h4>
-                            <ul class="list-disc list-inside mb-4 space-y-1 text-slate-600">
-                                <li>Initializes `Picamera2` for the camera feed and loads a Haar Cascade classifier for face detection.</li>
-                                <li>Saves cropped face images to the `dataset/1/` folder.</li>
+                            <h3 class="text-2xl font-black mb-3 text-[#00FFFF] uppercase mono">// PHASE 1: DATASET CAPTURE</h3>
+                            <p class="mb-4 text-gray-400 mono">MISSION: TO CAPTURE 30 GRAYSCALE IMAGES OF TARGET SUBJECT'S FACE. DATA VALIDATION IS CRITICAL FOR MODEL INTEGRITY.</p>
+                            <h4 class="font-bold mb-2 text-white uppercase mono">EXECUTION:</h4>
+                            <ul class="list-disc list-inside mb-4 space-y-1 text-gray-400 mono ml-4">
+                                <li>INITIALIZES `PICAMERA2` FEED & HAAR CASCADES.</li>
+                                <li>SAVES CROPPED FACE IMAGES TO `DATASET/1/` FOLDER.</li>
                             </ul>
                             <div class="code-block">
-                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                                <pre><code># Run this first to collect images (look at the camera when running)
-python3 01_dataset_creator.py</code></pre>
+                                <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                                <pre><code>python3 01_dataset_creator.py // EXECUTE DATA ACQUISITION</code></pre>
                             </div>
                         </div>
 
                         <div id="details-2" class="workflow-details-content hidden">
-                            <h3 class="text-2xl font-bold mb-3 text-teal-700">Stage 2: Model Training (`02_trainer.py`)</h3>
-                            <p class="mb-4 text-slate-600"><strong>Purpose:</strong> To train the LBPH recognizer using the collected images and serialize the model for real-time use.</p>
-                            <h4 class="font-semibold mb-2 text-slate-800">Key Logic:</h4>
-                            <ul class="list-disc list-inside mb-4 space-y-1 text-slate-600">
-                                <li>Reads all images from the `dataset` folder and extracts the user ID.</li>
-                                <li>Trains the LBPH recognizer using OpenCV's `cv2.face.LBPHFaceRecognizer_create()`.</li>
-                                <li>Saves the trained model to the file `trainer.yml`.</li>
+                            <h3 class="text-2xl font-black mb-3 text-[#00FFFF] uppercase mono">// PHASE 2: MODEL TRAINING</h3>
+                            <p class="mb-4 text-gray-400 mono">MISSION: TRAIN THE LBPH RECOGNIZER USING ACQUIRED DATA. MODEL SERIALIZATION COMPLETE UPON SUCCESS.</p>
+                            <h4 class="font-bold mb-2 text-white uppercase mono">EXECUTION:</h4>
+                            <ul class="list-disc list-inside mb-4 space-y-1 text-gray-400 mono ml-4">
+                                <li>PROCESSES IMAGES FROM `DATASET` & EXTRACTS USER ID.</li>
+                                <li>TRAINS LBPH RECOGNIZER.</li>
+                                <li>SAVES MODEL TO `TRAINER.YML`.</li>
                             </ul>
                             <div class="code-block">
-                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                                <pre><code># Run this second, after collecting the dataset
-python3 02_trainer.py</code></pre>
+                                <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                                <pre><code>python3 02_trainer.py // EXECUTE MODEL COMPILATION</code></pre>
                             </div>
                         </div>
 
                         <div id="details-3" class="workflow-details-content hidden">
-                            <h3 class="text-2xl font-bold mb-3 text-teal-700">Stage 3: Real-Time Recognition & Control (`03_face_recognizer.py`)</h3>
-                            <p class="mb-4 text-slate-600"><strong>Purpose:</strong> The main operational script. It loads the trained model, runs real-time recognition, and controls the servo based on the results.</p>
-                            <h4 class="font-semibold mb-2 text-slate-800">Key Logic & Servo Control:</h4>
-                            <ul class="list-disc list-inside mb-4 space-y-1 text-slate-600">
-                                <li>Initializes RPi.GPIO and starts the PWM signal for the servo at the **Locked** position (2.5% duty cycle).</li>
-                                <li>Uses `recognizer.predict()` for real-time face matching.</li>
-                                <li>**Match Found:** Servo moves to the **Unlocked** position (12.5% duty cycle).</li>
-                                <li>**Match Lost/Unknown:** Servo moves back to the **Locked** position.</li>
+                            <h3 class="text-2xl font-black mb-3 text-[#00FFFF] uppercase mono">// PHASE 3: REAL-TIME CONTROL</h3>
+                            <p class="mb-4 text-gray-400 mono">MISSION: LOAD MODEL AND INITIATE REAL-TIME RECOGNITION PROTOCOL. ACTUATE SERVO UPON POSITIVE MATCH.</p>
+                            <h4 class="font-bold mb-2 text-white uppercase mono">LOGIC & ACTUATION:</h4>
+                            <ul class="list-disc list-inside mb-4 space-y-1 text-gray-400 mono ml-4">
+                                <li>INITIATES RPi.GPIO & PWM AT **LOCKED** (2.5% DUTY).</li>
+                                <li>`RECOGNIZER.PREDICT()` FOR MATCHING.</li>
+                                <li>**MATCH FOUND:** SERVO $\rightarrow$ **UNLOCKED** (12.5% DUTY).</li>
+                                <li>**MATCH LOST/UNKNOWN:** SERVO $\rightarrow$ **LOCKED**.</li>
                             </ul>
                             <div class="code-block">
-                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                                <pre><code># Run this last to start the live system
-python3 03_face_recognizer.py</code></pre>
+                                <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                                <pre><code>python3 03_face_recognizer.py // EXECUTE REAL-TIME ACCESS CONTROL</code></pre>
                             </div>
                         </div>
                     </div>
 
                     <!-- Setup Section -->
                     <section id="setup">
-                        <h2 class="section-title !text-left">Setup & Requirements</h2>
-                        <div class="card">
-                            <div class="flex justify-start space-x-4 mb-6 overflow-x-auto border-b pb-2">
-                                <button id="tab-hw-btn" class="tab-btn active font-semibold whitespace-nowrap !text-teal-600 !border-teal-600">Hardware</button>
-                                <button id="tab-sw-btn" class="tab-btn font-semibold whitespace-nowrap">Software & Installation</button>
-                                <button id="tab-remote-btn" class="tab-btn font-semibold whitespace-nowrap">Remote Access (VNC)</button>
+                        <h2 class="section-title !text-left">HARDWARE INTERFACE PROTOCOL</h2>
+                        <div class="card border-2 border-[#FF00FF]/50 shadow-xl shadow-[#FF00FF]/10">
+                            <div class="flex justify-start space-x-4 mb-6 overflow-x-auto border-b border-gray-700 pb-2">
+                                <button id="tab-hw-btn" class="tab-btn active font-black whitespace-nowrap !text-[#00FFFF] !border-[#00FFFF] mono">HARDWARE</button>
+                                <button id="tab-sw-btn" class="tab-btn font-black whitespace-nowrap mono">SOFTWARE INJECTION</button>
+                                <button id="tab-remote-btn" class="tab-btn font-black whitespace-nowrap mono">REMOTE ACCESS [VNC]</button>
                             </div>
                             
                             <div id="tab-hw-content">
-                                <h3 class="font-bold text-lg mb-4 text-slate-800">Core Hardware Components</h3>
+                                <h3 class="font-bold text-lg mb-4 text-white uppercase mono">CORE HARDWARE COMPONENTS</h3>
                                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-center">
-                                    <div class="p-4 bg-slate-50 rounded-lg border">
-                                        <div class="text-3xl mb-2">🍓</div>
-                                        <p class="font-semibold">Raspberry Pi 4/3B+</p>
-                                        <p class="text-xs text-slate-500">Main processor</p>
+                                    <div class="p-4 bg-[#0d0d0d] rounded-lg border border-[#00FF00]">
+                                        <p class="font-bold text-lg uppercase mono text-[#00FFFF]">RPi 4/3B+</p>
+                                        <p class="text-xs text-gray-500 mono">CORE PROCESSOR</p>
                                     </div>
-                                    <div class="p-4 bg-slate-50 rounded-lg border">
-                                        <div class="text-3xl mb-2">📷</div>
-                                        <p class="font-semibold">Pi Camera Module</p>
-                                        <p class="text-xs text-slate-500">Video capture</p>
+                                    <div class="p-4 bg-[#0d0d0d] rounded-lg border border-[#00FF00]">
+                                        <p class="font-bold text-lg uppercase mono text-[#00FFFF]">PI CAMERA MODULE</p>
+                                        <p class="text-xs text-gray-500 mono">VISUAL ACQUISITION</p>
                                     </div>
-                                    <div class="p-4 bg-slate-50 rounded-lg border">
-                                        <div class="text-3xl mb-2">⚙️</div>
-                                        <p class="font-semibold">Servo Motor (SG90)</p>
-                                        <p class="text-xs text-slate-500">Lock mechanism</p>
+                                    <div class="p-4 bg-[#0d0d0d] rounded-lg border border-[#00FF00]">
+                                        <p class="font-bold text-lg uppercase mono text-[#00FFFF]">SERVO MOTOR</p>
+                                        <p class="text-xs text-gray-500 mono">LOCK ACTUATOR</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div id="tab-sw-content" class="hidden">
-                                <h3 class="font-bold text-lg mb-4 text-slate-800">Software Installation (OpenCV, GPIO, Picamera2)</h3>
+                                <h3 class="font-bold text-lg mb-4 text-white uppercase mono">SOFTWARE INJECTION (OPENCV, GPIO, PICAMERA2)</h3>
                                 <div class="space-y-4">
                                     <div>
-                                        <p class="font-semibold mb-1">1. Update and install core dependencies:</p>
+                                        <p class="font-bold mb-1 text-white uppercase mono">1. SYSTEM UPDATE & BASE DEPENDENCIES:</p>
                                         <div class="code-block">
-                                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                            <button class="copy-btn" onclick="copyCode(this)">COPY</button>
                                             <pre><code>sudo apt update
 sudo apt install python3-picamera2 python3-opencv -y</code></pre>
                                         </div>
                                     </div>
                                     <div>
-                                        <p class="font-semibold mb-1">2. Install necessary Python libraries (RPi.GPIO for Servo):</p>
+                                        <p class="font-bold mb-1 text-white uppercase mono">2. PYTHON LIBS: RPI.GPIO (ACTUATION) & UTILS:</p>
                                         <div class="code-block">
-                                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                            <button class="copy-btn" onclick="copyCode(this)">COPY</button>
                                             <pre><code>pip install opencv-contrib-python numpy RPi.GPIO pillow</code></pre>
                                         </div>
                                     </div>
                                     <div>
-                                        <p class="font-semibold mb-1">3. Download the Haar Cascade for face detection:</p>
+                                        <p class="font-bold mb-1 text-white uppercase mono">3. RETRIEVE HAAR CASCADE (FACE DETECTOR):</p>
                                         <div class="code-block">
-                                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                            <button class="copy-btn" onclick="copyCode(this)">COPY</button>
                                             <pre><code>wget https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml</code></pre>
                                         </div>
                                     </div>
@@ -263,12 +281,12 @@ sudo apt install python3-picamera2 python3-opencv -y</code></pre>
                             </div>
 
                             <div id="tab-remote-content" class="hidden">
-                                <h3 class="font-bold text-lg mb-4 text-slate-800">Remote Access Setup (RealVNC)</h3>
-                                <p class="mb-4 text-slate-600">Enable remote desktop access, as documented in the PDF guide:</p>
-                                <ol class="list-decimal list-inside space-y-3 text-slate-600">
-                                    <li>**Install RPi OS with Imager:** Pre-configure your username, password, and Wi-Fi settings during OS setup.</li>
-                                    <li>**Enable VNC Server:** Go to **Menu > Preferences > Raspberry Pi Configuration**, select **Interfaces**, and set **VNC to Enabled**.</li>
-                                    <li>**Connect Remotely:** Use **RealVNC Viewer** on your host computer, enter the Pi's address, and log in.</li>
+                                <h3 class="font-bold text-lg mb-4 text-white uppercase mono">REMOTE ACCESS PROTOCOL (REALVNC)</h3>
+                                <p class="mb-4 text-gray-400 mono">ESTABLISH SECURE REMOTE DESKTOP CONNECTION:</p>
+                                <ol class="list-decimal list-inside space-y-3 text-gray-400 mono ml-4">
+                                    <li>**IMAGER INSTALL:** CONFIGURE USER, PASS, AND WIFI DURING OS WRITE.</li>
+                                    <li>**VNC SERVER ENABLE:** RASPBERRY PI CONFIGURATION $\rightarrow$ INTERFACES $\rightarrow$ VNC $\rightarrow$ ENABLED.</li>
+                                    <li>**CONNECT:** USE **REALVNC VIEWER** $\rightarrow$ `RASPBERRYPI.LOCAL` (OR IP) $\rightarrow$ CREDENTIALS.</li>
                                 </ol>
                             </div>
                         </div>
@@ -276,32 +294,32 @@ sudo apt install python3-picamera2 python3-opencv -y</code></pre>
 
                     <!-- Wiring Section -->
                     <section id="wiring">
-                        <h2 class="section-title !text-left">Hardware Wiring Guide</h2>
-                        <p class="text-slate-600 mb-6">Correctly wiring the servo motor to the Raspberry Pi's GPIO header is crucial. We use **BCM GPIO 18** for PWM control.</p>
-                        <div class="card">
+                        <h2 class="section-title !text-left">ACTUATOR WIRING SCHEMA</h2>
+                        <p class="text-gray-400 mb-6 mono">CRITICAL CONNECTION: SERVO MOTOR TO GPIO 18 FOR PWM CONTROL.</p>
+                        <div class="card border-2 border-[#00FFFF]/50 shadow-xl shadow-[#00FFFF]/10">
                             <div class="space-y-4">
-                                <div class="flex items-center space-x-4 p-3 bg-teal-50 rounded-lg border-l-4 border-teal-500">
-                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-yellow-400 text-yellow-800 font-bold text-sm">Signal</div>
-                                    <div class="font-mono text-sm">&rarr;</div>
+                                <div class="flex items-center space-x-4 p-3 bg-black/50 rounded-lg border-l-4 border-[#00FFFF]">
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#00FFFF] text-black font-black text-sm uppercase mono">SIG</div>
+                                    <div class="font-black text-[#FF00FF] mono">&rarr;</div>
                                     <div class="flex-grow">
-                                        <p class="font-bold text-slate-800">GPIO 18 <span class="font-normal text-slate-500">(Physical Pin 12)</span></p>
-                                        <p class="text-xs text-slate-500">PWM Signal for Angle Control</p>
+                                        <p class="font-bold text-white uppercase mono">GPIO 18 <span class="font-normal text-gray-500">(PIN 12)</span></p>
+                                        <p class="text-xs text-gray-500 mono">PWM CONTROL LINE</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-4 p-3 bg-slate-50 rounded-lg border-l-4 border-red-500">
-                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-red-500 text-white font-bold text-sm">VCC</div>
-                                    <div class="font-mono text-sm">&rarr;</div>
+                                <div class="flex items-center space-x-4 p-3 bg-black/50 rounded-lg border-l-4 border-[#FF00FF]">
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#FF00FF] text-black font-black text-sm uppercase mono">VCC</div>
+                                    <div class="font-black text-[#FF00FF] mono">&rarr;</div>
                                     <div class="flex-grow">
-                                        <p class="font-bold text-slate-800">5V Power <span class="font-normal text-slate-500">(Physical Pin 2 or 4)</span></p>
-                                        <p class="text-xs text-slate-500">Servo Power Supply</p>
+                                        <p class="font-bold text-white uppercase mono">5V POWER <span class="font-normal text-gray-500">(PIN 2 OR 4)</span></p>
+                                        <p class="text-xs text-gray-500 mono">SERVO POWER INJECTION</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-4 p-3 bg-slate-50 rounded-lg border-l-4 border-gray-700">
-                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-700 text-white font-bold text-sm">GND</div>
-                                    <div class="font-mono text-sm">&rarr;</div>
+                                <div class="flex items-center space-x-4 p-3 bg-black/50 rounded-lg border-l-4 border-gray-500">
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-500 text-black font-black text-sm uppercase mono">GND</div>
+                                    <div class="font-black text-[#FF00FF] mono">&rarr;</div>
                                     <div class="flex-grow">
-                                        <p class="font-bold text-slate-800">Ground <span class="font-normal text-slate-500">(Any GND Pin)</span></p>
-                                        <p class="text-xs text-slate-500">Common Ground Connection</p>
+                                        <p class="font-bold text-white uppercase mono">COMMON GROUND</p>
+                                        <p class="text-xs text-gray-500 mono">CIRCUIT ZERO REFERENCE</p>
                                     </div>
                                 </div>
                             </div>
@@ -316,66 +334,54 @@ sudo apt install python3-picamera2 python3-opencv -y</code></pre>
         <!-- PAGE 3: PDF DOCUMENTATION -->
         <!-- ============================================== -->
         <div id="page-pdf" class="page-content hidden">
-            <h2 class="section-title">PDF Documentation: General RPi Project Setup</h2>
-            <p class="text-center text-slate-600 mb-8 max-w-4xl mx-auto">This section contains the critical setup and configuration documentation sourced from your provided PDF file, organized by day for clarity.</p>
+            <h2 class="section-title">RAW DOCUMENTATION LOGS</h2>
+            <p class="text-center text-gray-400 mb-8 max-w-4xl mx-auto mono">SOURCE DOCUMENTATION FOR BASE SYSTEM INTEGRATION, ORGANIZED BY DEPLOYMENT DAY.</p>
 
             <div class="grid md:grid-cols-2 gap-8">
-                <div class="card">
-                    <h3 class="text-xl font-bold mb-4 text-teal-700">Day 1: RPi OS Installation and RealVNC Setup</h3>
-                    <p class="font-semibold mb-2 text-slate-800">Objective: Install the operating system and configure RealVNC for remote desktop access.</p>
-                    <h4 class="font-semibold mt-4 text-slate-800">1. Install Raspberry Pi OS using Imager:</h4>
-                    <ul class="list-disc list-inside ml-4 text-slate-600">
-                        <li>Download and install the Raspberry Pi Imager.</li>
-                        <li>Select **Raspberry Pi OS**, choose storage, and set up your **username, password, and Wi-Fi**.</li>
-                        <li>Click "Write" to complete the process.</li>
+                <div class="card border-2 border-[#00FF00]/50">
+                    <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// DAY 1 PROTOCOL</h3>
+                    <p class="font-semibold mb-2 text-white mono">OBJECTIVE: OS INSTALLATION AND REALVNC SECURE ACCESS.</p>
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: OS & IMAGER ::</h4>
+                    <ul class="list-disc list-inside ml-4 text-gray-400 mono">
+                        <li>DOWNLOAD RASPBERRY PI IMAGER.</li>
+                        <li>CONFIGURE USER, PASS, & WIFI DURING WRITE.</li>
                     </ul>
-                    <h4 class="font-semibold mt-4 text-slate-800">2. Enable RealVNC Server:</h4>
-                    <p class="text-slate-600">Go to **Menu > Preferences > Raspberry Pi Configuration**, select the **Interfaces** tab, and ensure **VNC is set to Enabled**.</p>
-                    <h4 class="font-semibold mt-4 text-slate-800">3. Connect Remotely:</h4>
-                    <p class="text-slate-600">Use **RealVNC Viewer** on your remote computer and enter your Raspberry Pi's address (`raspberrypi.local` or IP) to connect.</p>
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: VNC ACCESS ::</h4>
+                    <p class="text-gray-400 mono">ENABLE VNC SERVER VIA RASPBERRY PI CONFIGURATION. USE REALVNC VIEWER TO CONNECT REMOTELY.</p>
                 </div>
 
-                <div class="card">
-                    <h3 class="text-xl font-bold mb-4 text-teal-700">Day 2 & 3: Sensors and Motor Control</h3>
-                    <p class="font-semibold mb-2 text-slate-800">Day 2 Objective: Interface and write Python code to read input from a Passive Infrared (PIR) motion sensor.</p>
-                    <h4 class="font-semibold mt-4 text-slate-800">PIR Sensor Wiring:</h4>
-                    <ul class="list-disc list-inside ml-4 text-slate-600">
-                        <li>PIR VCC $\rightarrow$ Raspberry Pi **5V Pin**</li>
-                        <li>PIR GND $\rightarrow$ Raspberry Pi **GND Pin**</li>
-                        <li>PIR OUT (Signal) $\rightarrow$ **GPIO 17** (Physical Pin 11, BCM)</li>
+                <div class="card border-2 border-[#00FF00]/50">
+                    <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// DAY 2 & 3 PROTOCOL</h3>
+                    <p class="font-semibold mb-2 text-white mono">OBJECTIVE: SENSOR I/O (PIR) AND ACTUATOR CONTROL (SERVO/STEPPER).</p>
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: PIR SENSOR WIRING ::</h4>
+                    <ul class="list-disc list-inside ml-4 text-gray-400 mono">
+                        <li>VCC $\rightarrow$ **5V**</li>
+                        <li>GND $\rightarrow$ **GND**</li>
+                        <li>SIGNAL $\rightarrow$ **GPIO 17 (BCM)**</li>
                     </ul>
-                    <hr class="my-4 border-slate-200">
-                    <p class="font-semibold mb-2 text-slate-800">Day 3 Objective: Control both a Servo Motor (using PWM) and a Stepper Motor (using a driver board).</p>
-                    <h4 class="font-semibold mt-4 text-slate-800">Servo Motor Control & Wiring:</h4>
-                    <ul class="list-disc list-inside ml-4 text-slate-600">
-                        <li>Servo motors use **PWM** (Pulse Width Modulation) to set the angle.</li>
-                        <li>Servo Power $\rightarrow$ **5V** (External Supply Recommended)</li>
-                        <li>Servo Ground $\rightarrow$ **Common GND**</li>
-                        <li>Servo Signal $\rightarrow$ **GPIO 18** (Physical Pin 12)</li>
+                    <hr class="my-4 border-gray-700">
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: SERVO CONTROL (PWM) ::</h4>
+                    <ul class="list-disc list-inside ml-4 text-gray-400 mono">
+                        <li>PWM REQUIRED.</li>
+                        <li>SIGNAL $\rightarrow$ **GPIO 18**.</li>
                     </ul>
-                    <h4 class="font-semibold mt-4 text-slate-800">Stepper Motor Control & Wiring:</h4>
-                    <ul class="list-disc list-inside ml-4 text-slate-600">
-                        <li>Stepper motors require an **ULN2003 Driver Board** to sequence the coils.</li>
-                        <li>Driver board VCC/GND $\rightarrow$ **External 5V Power** and **Common GND**.</li>
-                        <li>Driver board IN1-IN4 $\rightarrow$ **4 GPIO Output Pins** (e.g., GPIO 5, 6, 13, 19).</li>
+                    <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: STEPPER CONTROL ::</h4>
+                    <ul class="list-disc list-inside ml-4 text-gray-400 mono">
+                        <li>REQUIRES **ULN2003 DRIVER BOARD**.</li>
+                        <li>DRIVER IN1-IN4 $\rightarrow$ **4 GPIO PINS** (E.G., 5, 6, 13, 19).</li>
                     </ul>
                 </div>
             </div>
 
-            <div class="card mt-8 max-w-4xl mx-auto">
-                <h3 class="text-xl font-bold mb-4 text-teal-700">Day 4: Introduction to OpenCV</h3>
-                <p class="font-semibold mb-2 text-slate-800">Objective: Install the OpenCV library and run a basic computer vision script to process an image or capture video.</p>
-                <h4 class="font-semibold mt-4 text-slate-800">1. Update System Packages:</h4>
+            <div class="card mt-8 max-w-4xl mx-auto border-2 border-[#00FF00]/50">
+                <h3 class="text-xl font-bold mb-4 text-[#00FFFF] uppercase mono">// DAY 4 PROTOCOL (OPENCV INJECTION)</h3>
+                <p class="font-semibold mb-2 text-white mono">OBJECTIVE: INTEGRATE COMPUTER VISION LIBRARY FOR CORE FUNCTIONALITY.</p>
+                <h4 class="font-bold mt-4 text-[#FF00FF] uppercase mono">:: INSTALLATION LOG ::</h4>
                 <div class="code-block my-2">
-                    <pre><code>sudo apt update; sudo apt upgrade -y</code></pre>
+                    <pre><code>sudo apt update; sudo apt upgrade -y
+sudo apt install python3-opencv -y</code></pre>
                 </div>
-                <h4 class="font-semibold mt-4 text-slate-800">2. Install OpenCV:</h4>
-                <div class="code-block my-2">
-                    <pre><code>sudo apt install python3-opencv -y</code></pre>
-                </div>
-                <h4 class="font-semibold mt-4 text-slate-800">3. Test Installation:</h4>
-                <p class="text-slate-600">Open `python3` and run `import cv2` followed by `print(cv2.__version__)`.</p>
-                <p class="text-sm text-slate-500 mt-4">Note: The full Python code examples for these steps are available on the **Auxiliary Code Examples** page.</p>
+                <p class="text-sm text-gray-500 mt-4 mono">AUXILIARY CODE SCRIPTS ARE AVAILABLE IN THE /AUX_CODE TAB.</p>
             </div>
         </div>
         
@@ -383,15 +389,15 @@ sudo apt install python3-picamera2 python3-opencv -y</code></pre>
         <!-- PAGE 4: AUXILIARY CODE EXAMPLES -->
         <!-- ============================================== -->
         <div id="page-code" class="page-content hidden">
-            <h2 class="section-title">Auxiliary Code Examples</h2>
-            <p class="text-center text-slate-600 mb-12 max-w-4xl mx-auto">These are the additional Python scripts referenced in your documentation for interfacing with other sensors and testing OpenCV.</p>
+            <h2 class="section-title">AUXILIARY CODE ARTIFACTS</h2>
+            <p class="text-center text-gray-400 mb-12 max-w-4xl mx-auto mono">TEST SCRIPTS FOR SENSOR VALIDATION AND BASE OPENCV FUNCTIONS.</p>
             
             <div class="grid lg:grid-cols-2 gap-8">
-                <div class="p-4 bg-slate-100 rounded-xl shadow-md border">
-                    <h3 class="font-bold mb-1 text-slate-800">PIR Motion Sensor (Using RPi.GPIO)</h3>
-                    <p class="text-sm text-slate-500 mb-2">Detects movement and prints a message to the console.</p>
+                <div class="p-4 bg-[#1f2937] rounded-xl shadow-md border border-[#00FF00]/50">
+                    <h3 class="font-bold mb-1 text-white uppercase mono">PIR MOTION SENSOR (RPI.GPIO)</h3>
+                    <p class="text-sm text-gray-500 mb-2 mono">READS GPIO 17 FOR MOTION EVENT.</p>
                     <div class="code-block">
-                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
                         <pre><code>import RPi.GPIO as GPIO
 import time
 PIR_PIN = 17
@@ -401,41 +407,41 @@ GPIO.setup(PIR_PIN, GPIO.IN)
 try:
     while True:
         if GPIO.input(PIR_PIN):
-            print("Motion Detected!")
+            print("MOTION DETECTED! :: ALARM ACTIVE")
         else:
-            print("No Motion")
+            print("NO MOTION :: STANDBY")
         time.sleep(0.5)
 except KeyboardInterrupt:
     GPIO.cleanup()</code></pre>
                     </div>
                 </div>
 
-                <div class="p-4 bg-slate-100 rounded-xl shadow-md border">
-                    <h3 class="font-bold mb-1 text-slate-800">Servo Motor Control (Using gpiozero)</h3>
-                    <p class="text-sm text-slate-500 mb-2">Alternative servo control script that sweeps the motor between min and max angles.</p>
+                <div class="p-4 bg-[#1f2937] rounded-xl shadow-md border border-[#00FF00]/50">
+                    <h3 class="font-bold mb-1 text-white uppercase mono">SERVO MOTOR SWEEP (GPIOZERO)</h3>
+                    <p class="text-sm text-gray-500 mb-2 mono">ALTERNATE SERVO TEST SCRIPT SWEEPING GPIO 18.</p>
                     <div class="code-block">
-                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
                         <pre><code>from gpiozero import Servo
 from time import sleep
 
-servo = Servo(18) # Uses BCM 18
+servo = Servo(18) // BCM 18
 
 try:
     while True:
-        servo.min() # e.g., 0 degrees
+        servo.min() // LOCKED_POSITION (0°)
         sleep(1)
-        servo.max() # e.g., 180 degrees
+        servo.max() // UNLOCKED_POSITION (180°)
         sleep(1)
 except KeyboardInterrupt:
     pass</code></pre>
                     </div>
                 </div>
 
-                <div class="p-4 bg-slate-100 rounded-xl shadow-md border">
-                    <h3 class="font-bold mb-1 text-slate-800">Basic OpenCV Test (Image to Grayscale)</h3>
-                    <p class="text-sm text-slate-500 mb-2">Loads a file named `image.jpg`, converts it, and displays both windows.</p>
+                <div class="p-4 bg-[#1f2937] rounded-xl shadow-md border border-[#00FF00]/50">
+                    <h3 class="font-bold mb-1 text-white uppercase mono">OPENCV IMAGE PROCESSING TEST</h3>
+                    <p class="text-sm text-gray-500 mb-2 mono">VALIDATES OPENCV INSTALLATION BY CONVERTING 'IMAGE.JPG'.</p>
                     <div class="code-block">
-                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
                         <pre><code>import cv2
 
 img = cv2.imread('image.jpg')
@@ -443,13 +449,13 @@ img = cv2.imread('image.jpg')
 if img is not None:
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
-    cv2.imshow('Original Image', img)
-    cv2.imshow('Grayscale Image', gray_img)
+    cv2.imshow('ORIGINAL FEED', img)
+    cv2.imshow('GRAYSCALE FILTER', gray_img)
     
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 else:
-    print("Error: Could not read image.jpg")</code></pre>
+    print("ERROR: TARGET 'IMAGE.JPG' NOT FOUND.")</code></pre>
                     </div>
                 </div>
             </div>
@@ -457,10 +463,10 @@ else:
 
     </main>
 
-    <footer class="bg-slate-800 text-slate-300 py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p>Interactive Project Report created from source documentation.</p>
-            <p class="text-sm text-slate-400 mt-1">System designed for Raspberry Pi using OpenCV and Python.</p>
+    <footer class="bg-black text-gray-500 py-8 border-t-4 border-[#FF00FF]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mono">
+            <p>:: ACCESS CONTROL SYSTEM DEPLOYED ::</p>
+            <p class="text-sm mt-1 text-[#00FFFF]">STATUS: LIVE</p>
         </div>
     </footer>
 
@@ -518,10 +524,12 @@ else:
 
             // --- Sub-Tab Logic (for Page 2: Face Recognition Project) ---
             function activateSubTab(activeBtn, activeContent) {
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', '!text-teal-600', '!border-teal-600'));
+                // Reset styling for all buttons in this section
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', '!text-[#00FFFF]', '!border-[#00FFFF]', 'shadow-md'));
                 [tabHwContent, tabSwContent, tabRemoteContent].forEach(content => content.classList.add('hidden'));
                 
-                activeBtn.classList.add('active', '!text-teal-600', '!border-teal-600');
+                // Apply 'brutiful' active state
+                activeBtn.classList.add('active', '!text-[#00FFFF]', '!border-[#00FFFF]', 'shadow-md');
                 activeContent.classList.remove('hidden');
             }
 
@@ -545,23 +553,23 @@ else:
                 });
             });
 
-            // --- Chart Initialization ---
+            // --- Chart Initialization (The Chart theme is inverted for the dark background) ---
             const ctx = document.getElementById('workflowChart').getContext('2d');
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['1. Dataset Creation (35%)', '2. Model Training (20%)', '3. Real-Time Recognition (45%)'],
+                    labels: ['1. DATA ACQUISITION (35%)', '2. MODEL TRAINING (20%)', '3. REAL-TIME EXEC (45%)'],
                     datasets: [{
                         label: 'Project Phases',
                         data: [35, 20, 45],
                         backgroundColor: [
-                            'rgb(59, 130, 246)',
-                            'rgb(16, 185, 129)',
-                            'rgb(14, 165, 233)'
+                            'rgba(255, 0, 255, 0.8)', // Neon Pink
+                            'rgba(0, 255, 0, 0.8)',   // Neon Green
+                            'rgba(0, 255, 255, 0.8)'  // Neon Cyan
                         ],
-                        borderColor: '#ffffff',
+                        borderColor: 'rgba(0,0,0,0.5)', 
                         borderWidth: 4,
-                        hoverOffset: 8
+                        hoverOffset: 12
                     }]
                 },
                 options: {
@@ -574,11 +582,18 @@ else:
                                 padding: 20,
                                 font: {
                                     size: 14,
-                                    family: "'Inter', sans-serif"
-                                }
+                                    family: "'Space Mono', monospace",
+                                    weight: 'bold'
+                                },
+                                color: '#ffffff' 
                             }
                         },
                         tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#00FFFF',
+                            bodyColor: '#FFFFFF',
+                            borderColor: '#00FFFF',
+                            borderWidth: 1,
                              callbacks: {
                                 label: function(context) {
                                     let label = context.label || '';
@@ -587,20 +602,18 @@ else:
                                     }
                                     if (context.parsed !== null) {
                                         label = label.replace(/\(\d+%\)/g, ''); 
-                                        label += context.parsed + '% of project effort';
+                                        label += context.parsed + '% EFFORT ALLOCATED';
                                     }
                                     return label;
                                 }
                             }
                         }
                     },
-                    cutout: '60%'
+                    cutout: '70%'
                 }
             });
 
             // Initial view setup
-            // This is handled by showPage('page-home') implicitly, 
-            // but we ensure initial tab states are correct.
             document.getElementById('nav-home').classList.add('active');
             activateSubTab(tabHwBtn, tabHwContent);
             
@@ -612,9 +625,9 @@ else:
             const pre = button.parentElement.querySelector('pre');
             const text = pre.innerText;
             navigator.clipboard.writeText(text).then(() => {
-                button.innerText = 'Copied!';
+                button.innerText = 'COPIED!';
                 setTimeout(() => {
-                    button.innerText = 'Copy';
+                    button.innerText = 'COPY';
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy text: ', err);
